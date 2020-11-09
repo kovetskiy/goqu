@@ -5,11 +5,11 @@
  \__, |\___/ \__, |\__,_|
  |___/          |_|
 ```
-[![GitHub tag](https://img.shields.io/github/tag/doug-martin/goqu.svg?style=flat)](https://github.com/doug-martin/goqu/releases)
-[![Test](https://github.com/doug-martin/goqu/workflows/Test/badge.svg?branch=master&event=push)](https://github.com/doug-martin/goqu/actions?query=workflow%3ATest+and+branch%3Amaster+)
-[![GoDoc](https://godoc.org/github.com/doug-martin/goqu?status.png)](http://godoc.org/github.com/doug-martin/goqu)
-[![codecov](https://codecov.io/gh/doug-martin/goqu/branch/master/graph/badge.svg)](https://codecov.io/gh/doug-martin/goqu)
-[![Go Report Card](https://goreportcard.com/badge/github.com/doug-martin/goqu/v9)](https://goreportcard.com/report/github.com/doug-martin/goqu/v9)
+[![GitHub tag](https://img.shields.io/github/tag/kovetskiy/goqu.svg?style=flat)](https://github.com/kovetskiy/goqu/releases)
+[![Test](https://github.com/kovetskiy/goqu/workflows/Test/badge.svg?branch=master&event=push)](https://github.com/kovetskiy/goqu/actions?query=workflow%3ATest+and+branch%3Amaster+)
+[![GoDoc](https://godoc.org/github.com/kovetskiy/goqu?status.png)](http://godoc.org/github.com/kovetskiy/goqu)
+[![codecov](https://codecov.io/gh/kovetskiy/goqu/branch/master/graph/badge.svg)](https://codecov.io/gh/kovetskiy/goqu)
+[![Go Report Card](https://goreportcard.com/badge/github.com/kovetskiy/goqu/v9)](https://goreportcard.com/report/github.com/kovetskiy/goqu/v9)
 
 `goqu` is an expressive SQL builder and executor
     
@@ -21,15 +21,15 @@ If you are upgrading from an older version please read the [Migrating Between Ve
 If using go modules.
 
 ```sh
-go get -u github.com/doug-martin/goqu/v9
+go get -u github.com/kovetskiy/goqu/v9
 ```
 
 If you are not using go modules...
 
-**NOTE** You should still be able to use this package if you are using go version `>v1.10` but, you will need to drop the version from the package. `import "github.com/doug-martin/goqu/v9` -> `import "github.com/doug-martin/goqu"`
+**NOTE** You should still be able to use this package if you are using go version `>v1.10` but, you will need to drop the version from the package. `import "github.com/kovetskiy/goqu/v9` -> `import "github.com/kovetskiy/goqu"`
 
 ```sh
-go get -u github.com/doug-martin/goqu
+go get -u github.com/kovetskiy/goqu
 ```
 
 ### [Migrating Between Versions](./docs/version_migration.md)
@@ -288,7 +288,7 @@ If you find an issue you want to work on please comment on it letting other peop
 If want to work on an issue but dont know where to start just leave a comment and I'll be more than happy to point you in the right direction.
 
 ### Running tests
-The test suite requires a postgres, mysql and sqlserver databases. You can override the connection strings with the [`MYSQL_URI`, `PG_URI`, `SQLSERVER_URI` environment variables](https://github.com/doug-martin/goqu/blob/2fe3349/docker-compose.yml#L26)*
+The test suite requires a postgres, mysql and sqlserver databases. You can override the connection strings with the [`MYSQL_URI`, `PG_URI`, `SQLSERVER_URI` environment variables](https://github.com/kovetskiy/goqu/blob/2fe3349/docker-compose.yml#L26)*
 
 ```sh
 go test -v -race ./...

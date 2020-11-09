@@ -8,7 +8,7 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/doug-martin/goqu/v9"
+	"github.com/kovetskiy/goqu/v9"
 	"github.com/lib/pq"
 )
 

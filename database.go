@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"sync"
 
-	"github.com/doug-martin/goqu/v9/exec"
+	"github.com/kovetskiy/goqu/v9/exec"
 )
 
 type (
@@ -36,14 +36,14 @@ type (
 // This is the common entry point into goqu.
 //
 // dialect: This is the adapter dialect, you should see your database adapter for the string to use. Built in adapters
-// can be found at https://github.com/doug-martin/goqu/tree/master/adapters
+// can be found at https://github.com/kovetskiy/goqu/tree/master/adapters
 //
 // db: A sql.Db to use for querying the database
 //      import (
 //          "database/sql"
 //          "fmt"
-//          "github.com/doug-martin/goqu/v9"
-//          _ "github.com/doug-martin/goqu/v9/adapters/postgres"
+//          "github.com/kovetskiy/goqu/v9"
+//          _ "github.com/kovetskiy/goqu/v9/adapters/postgres"
 //          _ "github.com/lib/pq"
 //      )
 //

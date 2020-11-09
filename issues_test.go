@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/doug-martin/goqu/v9"
-	"github.com/doug-martin/goqu/v9/exp"
+	"github.com/kovetskiy/goqu/v9"
+	"github.com/kovetskiy/goqu/v9/exp"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -22,7 +22,7 @@ func (gis *githubIssuesSuite) AfterTest(suiteName, testName string) {
 	goqu.SetColumnRenameFunction(strings.ToLower)
 }
 
-// Test for https://github.com/doug-martin/goqu/issues/49
+// Test for https://github.com/kovetskiy/goqu/issues/49
 func (gis *githubIssuesSuite) TestIssue49() {
 	dialect := goqu.Dialect("default")
 
@@ -43,7 +43,7 @@ func (gis *githubIssuesSuite) TestIssue49() {
 	gis.Equal(`SELECT * FROM "table"`, sql)
 }
 
-// Test for https://github.com/doug-martin/goqu/issues/115
+// Test for https://github.com/kovetskiy/goqu/issues/115
 func (gis *githubIssuesSuite) TestIssue115() {
 	type TestStruct struct {
 		Field string
@@ -56,7 +56,7 @@ func (gis *githubIssuesSuite) TestIssue115() {
 	gis.EqualError(err, `goqu: a empty identifier was encountered, please specify a "schema", "table" or "column"`)
 }
 
-// Test for https://github.com/doug-martin/goqu/issues/118
+// Test for https://github.com/kovetskiy/goqu/issues/118
 func (gis *githubIssuesSuite) TestIssue118_withEmbeddedStructWithoutExportedFields() {
 	// struct is in a custom package
 	type SimpleRole struct {
@@ -126,7 +126,7 @@ func (gis *githubIssuesSuite) TestIssue118_withEmbeddedStructWithoutExportedFiel
 	)
 }
 
-// Test for https://github.com/doug-martin/goqu/issues/118
+// Test for https://github.com/kovetskiy/goqu/issues/118
 func (gis *githubIssuesSuite) TestIssue118_withNilEmbeddedStructWithExportedFields() {
 	// struct is in a custom package
 	type SimpleRole struct {
@@ -202,7 +202,7 @@ func (gis *githubIssuesSuite) TestIssue118_withNilEmbeddedStructWithExportedFiel
 	)
 }
 
-// Test for https://github.com/doug-martin/goqu/issues/118
+// Test for https://github.com/kovetskiy/goqu/issues/118
 func (gis *githubIssuesSuite) TestIssue140() {
 	sql, arg, err := goqu.Insert(`test`).Returning().ToSQL()
 	gis.NoError(err)
@@ -247,7 +247,7 @@ func (gis *githubIssuesSuite) TestIssue140() {
 	)
 }
 
-// Test for https://github.com/doug-martin/goqu/issues/164
+// Test for https://github.com/kovetskiy/goqu/issues/164
 func (gis *githubIssuesSuite) TestIssue164() {
 	insertDs := goqu.Insert("foo").Rows(goqu.Record{"user_id": 10}).Returning("id")
 
@@ -323,7 +323,7 @@ func (gis *githubIssuesSuite) TestIssue164() {
 	)
 }
 
-// Test for https://github.com/doug-martin/goqu/issues/177
+// Test for https://github.com/kovetskiy/goqu/issues/177
 func (gis *githubIssuesSuite) TestIssue177() {
 	ds := goqu.Dialect("postgres").
 		From("ins1").
@@ -361,7 +361,7 @@ func (gis *githubIssuesSuite) TestIssue177() {
 	gis.Equal(args, []interface{}{"email@email.com", "active", "XXX-XXX-XXXX", int64(1001)})
 }
 
-// Test for https://github.com/doug-martin/goqu/issues/183
+// Test for https://github.com/kovetskiy/goqu/issues/183
 func (gis *githubIssuesSuite) TestIssue184() {
 	expectedErr := fmt.Errorf("an error")
 	testCases := []struct {
@@ -400,7 +400,7 @@ func (gis *githubIssuesSuite) TestIssue184() {
 	}
 }
 
-// Test for https://github.com/doug-martin/goqu/issues/185
+// Test for https://github.com/kovetskiy/goqu/issues/185
 func (gis *githubIssuesSuite) TestIssue185() {
 	mDb, sqlMock, err := sqlmock.New()
 	gis.NoError(err)
@@ -422,7 +422,7 @@ func (gis *githubIssuesSuite) TestIssue185() {
 	gis.Equal([]int{1, 2, 3, 4}, i)
 }
 
-// Test for https://github.com/doug-martin/goqu/issues/203
+// Test for https://github.com/kovetskiy/goqu/issues/203
 func (gis *githubIssuesSuite) TestIssue203() {
 	// Schema definitions.
 	authSchema := goqu.S("company_auth")

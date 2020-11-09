@@ -3,7 +3,7 @@ package goqu
 import (
 	"testing"
 
-	"github.com/doug-martin/goqu/v9/exp"
+	"github.com/kovetskiy/goqu/v9/exp"
 	"github.com/stretchr/testify/suite"
 )
 

@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/doug-martin/goqu/v9/internal/errors"
+	"github.com/kovetskiy/goqu/v9/internal/errors"
 	"github.com/stretchr/testify/suite"
 )
 

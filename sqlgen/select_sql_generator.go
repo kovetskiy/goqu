@@ -1,9 +1,9 @@
 package sqlgen
 
 import (
-	"github.com/doug-martin/goqu/v9/exp"
-	"github.com/doug-martin/goqu/v9/internal/errors"
-	"github.com/doug-martin/goqu/v9/internal/sb"
+	"github.com/kovetskiy/goqu/v9/exp"
+	"github.com/kovetskiy/goqu/v9/internal/errors"
+	"github.com/kovetskiy/goqu/v9/internal/sb"
 )
 
 type (
@@ -15,7 +15,7 @@ type (
 	}
 	// The default adapter. This class should be used when building a new adapter. When creating a new adapter you can
 	// either override methods, or more typically update default values.
-	// See (github.com/doug-martin/goqu/adapters/postgres)
+	// See (github.com/kovetskiy/goqu/adapters/postgres)
 	selectSQLGenerator struct {
 		*commonSQLGenerator
 	}

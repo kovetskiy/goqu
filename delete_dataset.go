@@ -1,10 +1,10 @@
 package goqu
 
 import (
-	"github.com/doug-martin/goqu/v9/exec"
-	"github.com/doug-martin/goqu/v9/exp"
-	"github.com/doug-martin/goqu/v9/internal/errors"
-	"github.com/doug-martin/goqu/v9/internal/sb"
+	"github.com/kovetskiy/goqu/v9/exec"
+	"github.com/kovetskiy/goqu/v9/exp"
+	"github.com/kovetskiy/goqu/v9/internal/errors"
+	"github.com/kovetskiy/goqu/v9/internal/sb"
 )
 
 var errBadFromArgument = errors.New("unsupported DeleteDataset#From argument, a string or identifier expression is required")

@@ -3,9 +3,9 @@ package sqlgen
 import (
 	"testing"
 
-	"github.com/doug-martin/goqu/v9/exp"
-	"github.com/doug-martin/goqu/v9/internal/errors"
-	"github.com/doug-martin/goqu/v9/internal/sb"
+	"github.com/kovetskiy/goqu/v9/exp"
+	"github.com/kovetskiy/goqu/v9/internal/errors"
+	"github.com/kovetskiy/goqu/v9/internal/sb"
 	"github.com/stretchr/testify/suite"
 )
 
