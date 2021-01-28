@@ -55,6 +55,9 @@ func addFieldToRecord(r Record, val reflect.Value, f util.ColumnData) {
 	switch {
 	case f.DefaultIfEmpty && util.IsEmptyValue(v):
 		r[f.ColumnName] = Default()
+	case f.Omitempty && util.IsPointer(v.Kind()) && v.IsNil():
+		// omit the value
+		return
 	case v.IsValid():
 		r[f.ColumnName] = v.Interface()
 	default:

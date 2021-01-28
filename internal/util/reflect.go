@@ -13,6 +13,7 @@ const (
 	skipUpdateTagName     = "skipupdate"
 	skipInsertTagName     = "skipinsert"
 	defaultIfEmptyTagName = "defaultifempty"
+	omitEmptyTagName      = "omitempty"
 )
 
 var scannerType = reflect.TypeOf((*sql.Scanner)(nil)).Elem()

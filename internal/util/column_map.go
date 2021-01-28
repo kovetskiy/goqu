@@ -15,6 +15,7 @@ type (
 		ShouldInsert   bool
 		ShouldUpdate   bool
 		DefaultIfEmpty bool
+		Omitempty      bool
 		GoType         reflect.Type
 	}
 	ColumnMap map[string]ColumnData
@@ -91,6 +92,7 @@ func newColumnData(f *reflect.StructField, columnName string, fieldIndex []int, 
 		ShouldInsert:   !goquTag.Contains(skipInsertTagName),
 		ShouldUpdate:   !goquTag.Contains(skipUpdateTagName),
 		DefaultIfEmpty: goquTag.Contains(defaultIfEmptyTagName),
+		Omitempty:      goquTag.Contains(omitEmptyTagName),
 		FieldIndex:     append(fieldIndex, f.Index...),
 		GoType:         f.Type,
 	}
