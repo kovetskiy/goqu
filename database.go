@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"sync"
+	"time"
 
 	"github.com/kovetskiy/goqu/v9/exec"
 )
@@ -17,10 +18,22 @@ type (
 	SQLDatabase interface {
 		Begin() (*sql.Tx, error)
 		BeginTx(ctx context.Context, opts *sql.TxOptions) (*sql.Tx, error)
-		ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
+		ExecContext(
+			ctx context.Context,
+			query string,
+			args ...interface{},
+		) (sql.Result, error)
 		PrepareContext(ctx context.Context, query string) (*sql.Stmt, error)
-		QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error)
-		QueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row
+		QueryContext(
+			ctx context.Context,
+			query string,
+			args ...interface{},
+		) (*sql.Rows, error)
+		QueryRowContext(
+			ctx context.Context,
+			query string,
+			args ...interface{},
+		) *sql.Row
 	}
 	// This struct is the wrapper for a Db. The struct delegates most calls to either an Exec instance or to the Db
 	// passed into the constructor.
@@ -82,7 +95,10 @@ func (d *Database) Begin() (*TxDatabase, error) {
 }
 
 // Starts a new Transaction. See sql.DB#BeginTx for option description
-func (d *Database) BeginTx(ctx context.Context, opts *sql.TxOptions) (*TxDatabase, error) {
+func (d *Database) BeginTx(
+	ctx context.Context,
+	opts *sql.TxOptions,
+) (*TxDatabase, error) {
 	sqlTx, err := d.Db.BeginTx(ctx, opts)
 	if err != nil {
 		return nil, err
@@ -139,16 +155,26 @@ func (d *Database) Logger(logger Logger) {
 }
 
 // Logs a given operation with the specified sql and arguments
-func (d *Database) Trace(op, sqlString string, args ...interface{}) {
+func (d *Database) Trace(
+	op string,
+	sqlString string,
+	sqlTook time.Duration,
+	args ...interface{},
+) {
 	if d.logger != nil {
 		if sqlString != "" {
 			if len(args) != 0 {
-				d.logger.Printf("[goqu] %s [query:=`%s` args:=%+v]", op, sqlString, args)
+				d.logger.Printf(
+					"[sql] %s | %s | %+v",
+					op,
+					sqlString,
+					args,
+				)
 			} else {
-				d.logger.Printf("[goqu] %s [query:=`%s`]", op, sqlString)
+				d.logger.Printf("[sql] %s | %s", op, sqlString)
 			}
 		} else {
-			d.logger.Printf("[goqu] %s", op)
+			d.logger.Printf("[sql] %s", op)
 		}
 	}
 }
@@ -167,9 +193,15 @@ func (d *Database) Exec(query string, args ...interface{}) (sql.Result, error) {
 // query: The SQL to execute
 //
 // args...: for any placeholder parameters in the query
-func (d *Database) ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
-	d.Trace("EXEC", query, args...)
-	return d.Db.ExecContext(ctx, query, args...)
+func (d *Database) ExecContext(
+	ctx context.Context,
+	query string,
+	args ...interface{},
+) (sql.Result, error) {
+	at := time.Now()
+	result, err := d.Db.ExecContext(ctx, query, args...)
+	d.Trace("EXEC", query, time.Since(at), args...)
+	return result, err
 }
 
 // Can be used to prepare a query.
@@ -226,9 +258,14 @@ func (d *Database) Prepare(query string) (*sql.Stmt, error) {
 //    }
 //
 // query: The SQL statement to prepare.
-func (d *Database) PrepareContext(ctx context.Context, query string) (*sql.Stmt, error) {
-	d.Trace("PREPARE", query)
-	return d.Db.PrepareContext(ctx, query)
+func (d *Database) PrepareContext(
+	ctx context.Context,
+	query string,
+) (*sql.Stmt, error) {
+	at := time.Now()
+	stmt, err := d.Db.PrepareContext(ctx, query)
+	d.Trace("PREPARE", query, time.Since(at))
+	return stmt, err
 }
 
 // Used to query for multiple rows.
@@ -279,9 +316,15 @@ func (d *Database) Query(query string, args ...interface{}) (*sql.Rows, error) {
 // query: The SQL to execute
 //
 // args...: for any placeholder parameters in the query
-func (d *Database) QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error) {
-	d.Trace("QUERY", query, args...)
-	return d.Db.QueryContext(ctx, query, args...)
+func (d *Database) QueryContext(
+	ctx context.Context,
+	query string,
+	args ...interface{},
+) (*sql.Rows, error) {
+	at := time.Now()
+	rows, err := d.Db.QueryContext(ctx, query, args...)
+	d.Trace("QUERY", query, time.Since(at), args...)
+	return rows, err
 }
 
 // Used to query for a single row.
@@ -320,9 +363,15 @@ func (d *Database) QueryRow(query string, args ...interface{}) *sql.Row {
 // query: The SQL to execute
 //
 // args...: for any placeholder parameters in the query
-func (d *Database) QueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row {
-	d.Trace("QUERY ROW", query, args...)
-	return d.Db.QueryRowContext(ctx, query, args...)
+func (d *Database) QueryRowContext(
+	ctx context.Context,
+	query string,
+	args ...interface{},
+) *sql.Row {
+	at := time.Now()
+	row := d.Db.QueryRowContext(ctx, query, args...)
+	d.Trace("QUERY ROW", query, time.Since(at), args...)
+	return row
 }
 
 func (d *Database) queryFactory() exec.QueryFactory {
@@ -340,7 +389,11 @@ func (d *Database) queryFactory() exec.QueryFactory {
 // query: The SQL to execute
 //
 // args...: for any placeholder parameters in the query
-func (d *Database) ScanStructs(i interface{}, query string, args ...interface{}) error {
+func (d *Database) ScanStructs(
+	i interface{},
+	query string,
+	args ...interface{},
+) error {
 	return d.ScanStructsContext(context.Background(), i, query, args...)
 }
 
@@ -352,7 +405,12 @@ func (d *Database) ScanStructs(i interface{}, query string, args ...interface{})
 // query: The SQL to execute
 //
 // args...: for any placeholder parameters in the query
-func (d *Database) ScanStructsContext(ctx context.Context, i interface{}, query string, args ...interface{}) error {
+func (d *Database) ScanStructsContext(
+	ctx context.Context,
+	i interface{},
+	query string,
+	args ...interface{},
+) error {
 	return d.queryFactory().FromSQL(query, args...).ScanStructsContext(ctx, i)
 }
 
@@ -364,7 +422,11 @@ func (d *Database) ScanStructsContext(ctx context.Context, i interface{}, query 
 // query: The SQL to execute
 //
 // args...: for any placeholder parameters in the query
-func (d *Database) ScanStruct(i interface{}, query string, args ...interface{}) (bool, error) {
+func (d *Database) ScanStruct(
+	i interface{},
+	query string,
+	args ...interface{},
+) (bool, error) {
 	return d.ScanStructContext(context.Background(), i, query, args...)
 }
 
@@ -376,7 +438,12 @@ func (d *Database) ScanStruct(i interface{}, query string, args ...interface{}) 
 // query: The SQL to execute
 //
 // args...: for any placeholder parameters in the query
-func (d *Database) ScanStructContext(ctx context.Context, i interface{}, query string, args ...interface{}) (bool, error) {
+func (d *Database) ScanStructContext(
+	ctx context.Context,
+	i interface{},
+	query string,
+	args ...interface{},
+) (bool, error) {
 	return d.queryFactory().FromSQL(query, args...).ScanStructContext(ctx, i)
 }
 
@@ -388,7 +455,11 @@ func (d *Database) ScanStructContext(ctx context.Context, i interface{}, query s
 // query: The SQL to execute
 //
 // args...: for any placeholder parameters in the query
-func (d *Database) ScanVals(i interface{}, query string, args ...interface{}) error {
+func (d *Database) ScanVals(
+	i interface{},
+	query string,
+	args ...interface{},
+) error {
 	return d.ScanValsContext(context.Background(), i, query, args...)
 }
 
@@ -400,7 +471,12 @@ func (d *Database) ScanVals(i interface{}, query string, args ...interface{}) er
 // query: The SQL to execute
 //
 // args...: for any placeholder parameters in the query
-func (d *Database) ScanValsContext(ctx context.Context, i interface{}, query string, args ...interface{}) error {
+func (d *Database) ScanValsContext(
+	ctx context.Context,
+	i interface{},
+	query string,
+	args ...interface{},
+) error {
 	return d.queryFactory().FromSQL(query, args...).ScanValsContext(ctx, i)
 }
 
@@ -412,7 +488,11 @@ func (d *Database) ScanValsContext(ctx context.Context, i interface{}, query str
 // query: The SQL to execute
 //
 // args...: for any placeholder parameters in the query
-func (d *Database) ScanVal(i interface{}, query string, args ...interface{}) (bool, error) {
+func (d *Database) ScanVal(
+	i interface{},
+	query string,
+	args ...interface{},
+) (bool, error) {
 	return d.ScanValContext(context.Background(), i, query, args...)
 }
 
@@ -424,7 +504,12 @@ func (d *Database) ScanVal(i interface{}, query string, args ...interface{}) (bo
 // query: The SQL to execute
 //
 // args...: for any placeholder parameters in the query
-func (d *Database) ScanValContext(ctx context.Context, i interface{}, query string, args ...interface{}) (bool, error) {
+func (d *Database) ScanValContext(
+	ctx context.Context,
+	i interface{},
+	query string,
+	args ...interface{},
+) (bool, error) {
 	return d.queryFactory().FromSQL(query, args...).ScanValContext(ctx, i)
 }
 
@@ -433,10 +518,22 @@ type (
 	// Interface for sql.Tx, an interface is used so you can use with other
 	// libraries such as sqlx instead of the native sql.DB
 	SQLTx interface {
-		ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
+		ExecContext(
+			ctx context.Context,
+			query string,
+			args ...interface{},
+		) (sql.Result, error)
 		PrepareContext(ctx context.Context, query string) (*sql.Stmt, error)
-		QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error)
-		QueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row
+		QueryContext(
+			ctx context.Context,
+			query string,
+			args ...interface{},
+		) (*sql.Rows, error)
+		QueryRowContext(
+			ctx context.Context,
+			query string,
+			args ...interface{},
+		) *sql.Row
 		Commit() error
 		Rollback() error
 	}
@@ -493,7 +590,12 @@ func (td *TxDatabase) Trace(op, sqlString string, args ...interface{}) {
 	if td.logger != nil {
 		if sqlString != "" {
 			if len(args) != 0 {
-				td.logger.Printf("[goqu - transaction] %s [query:=`%s` args:=%+v] ", op, sqlString, args)
+				td.logger.Printf(
+					"[goqu - transaction] %s [query:=`%s` args:=%+v] ",
+					op,
+					sqlString,
+					args,
+				)
 			} else {
 				td.logger.Printf("[goqu - transaction] %s [query:=`%s`] ", op, sqlString)
 			}
@@ -504,12 +606,19 @@ func (td *TxDatabase) Trace(op, sqlString string, args ...interface{}) {
 }
 
 // See Database#Exec
-func (td *TxDatabase) Exec(query string, args ...interface{}) (sql.Result, error) {
+func (td *TxDatabase) Exec(
+	query string,
+	args ...interface{},
+) (sql.Result, error) {
 	return td.ExecContext(context.Background(), query, args...)
 }
 
 // See Database#ExecContext
-func (td *TxDatabase) ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
+func (td *TxDatabase) ExecContext(
+	ctx context.Context,
+	query string,
+	args ...interface{},
+) (sql.Result, error) {
 	td.Trace("EXEC", query, args...)
 	return td.Tx.ExecContext(ctx, query, args...)
 }
@@ -520,18 +629,28 @@ func (td *TxDatabase) Prepare(query string) (*sql.Stmt, error) {
 }
 
 // See Database#PrepareContext
-func (td *TxDatabase) PrepareContext(ctx context.Context, query string) (*sql.Stmt, error) {
+func (td *TxDatabase) PrepareContext(
+	ctx context.Context,
+	query string,
+) (*sql.Stmt, error) {
 	td.Trace("PREPARE", query)
 	return td.Tx.PrepareContext(ctx, query)
 }
 
 // See Database#Query
-func (td *TxDatabase) Query(query string, args ...interface{}) (*sql.Rows, error) {
+func (td *TxDatabase) Query(
+	query string,
+	args ...interface{},
+) (*sql.Rows, error) {
 	return td.QueryContext(context.Background(), query, args...)
 }
 
 // See Database#QueryContext
-func (td *TxDatabase) QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error) {
+func (td *TxDatabase) QueryContext(
+	ctx context.Context,
+	query string,
+	args ...interface{},
+) (*sql.Rows, error) {
 	td.Trace("QUERY", query, args...)
 	return td.Tx.QueryContext(ctx, query, args...)
 }
@@ -542,7 +661,11 @@ func (td *TxDatabase) QueryRow(query string, args ...interface{}) *sql.Row {
 }
 
 // See Database#QueryRowContext
-func (td *TxDatabase) QueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row {
+func (td *TxDatabase) QueryRowContext(
+	ctx context.Context,
+	query string,
+	args ...interface{},
+) *sql.Row {
 	td.Trace("QUERY ROW", query, args...)
 	return td.Tx.QueryRowContext(ctx, query, args...)
 }
@@ -555,42 +678,78 @@ func (td *TxDatabase) queryFactory() exec.QueryFactory {
 }
 
 // See Database#ScanStructs
-func (td *TxDatabase) ScanStructs(i interface{}, query string, args ...interface{}) error {
+func (td *TxDatabase) ScanStructs(
+	i interface{},
+	query string,
+	args ...interface{},
+) error {
 	return td.ScanStructsContext(context.Background(), i, query, args...)
 }
 
 // See Database#ScanStructsContext
-func (td *TxDatabase) ScanStructsContext(ctx context.Context, i interface{}, query string, args ...interface{}) error {
+func (td *TxDatabase) ScanStructsContext(
+	ctx context.Context,
+	i interface{},
+	query string,
+	args ...interface{},
+) error {
 	return td.queryFactory().FromSQL(query, args...).ScanStructsContext(ctx, i)
 }
 
 // See Database#ScanStruct
-func (td *TxDatabase) ScanStruct(i interface{}, query string, args ...interface{}) (bool, error) {
+func (td *TxDatabase) ScanStruct(
+	i interface{},
+	query string,
+	args ...interface{},
+) (bool, error) {
 	return td.ScanStructContext(context.Background(), i, query, args...)
 }
 
 // See Database#ScanStructContext
-func (td *TxDatabase) ScanStructContext(ctx context.Context, i interface{}, query string, args ...interface{}) (bool, error) {
+func (td *TxDatabase) ScanStructContext(
+	ctx context.Context,
+	i interface{},
+	query string,
+	args ...interface{},
+) (bool, error) {
 	return td.queryFactory().FromSQL(query, args...).ScanStructContext(ctx, i)
 }
 
 // See Database#ScanVals
-func (td *TxDatabase) ScanVals(i interface{}, query string, args ...interface{}) error {
+func (td *TxDatabase) ScanVals(
+	i interface{},
+	query string,
+	args ...interface{},
+) error {
 	return td.ScanValsContext(context.Background(), i, query, args...)
 }
 
 // See Database#ScanValsContext
-func (td *TxDatabase) ScanValsContext(ctx context.Context, i interface{}, query string, args ...interface{}) error {
+func (td *TxDatabase) ScanValsContext(
+	ctx context.Context,
+	i interface{},
+	query string,
+	args ...interface{},
+) error {
 	return td.queryFactory().FromSQL(query, args...).ScanValsContext(ctx, i)
 }
 
 // See Database#ScanVal
-func (td *TxDatabase) ScanVal(i interface{}, query string, args ...interface{}) (bool, error) {
+func (td *TxDatabase) ScanVal(
+	i interface{},
+	query string,
+	args ...interface{},
+) (bool, error) {
 	return td.ScanValContext(context.Background(), i, query, args...)
 }
 
 // See Database#ScanValContext
-func (td *TxDatabase) ScanValContext(ctx context.Context, i interface{}, query string, args ...interface{}) (bool, error) {
+func (td *TxDatabase) ScanValContext(
+	ctx context.Context,
+	i interface{},
+	query string,
+	args ...interface{},
+) (bool, error) {
 	return td.queryFactory().FromSQL(query, args...).ScanValContext(ctx, i)
 }
 
