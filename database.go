@@ -198,6 +198,10 @@ func (d *Database) ExecContext(
 	query string,
 	args ...interface{},
 ) (sql.Result, error) {
+	if d.logger == nil {
+		return d.Db.ExecContext(ctx, query, args...)
+	}
+
 	at := time.Now()
 	result, err := d.Db.ExecContext(ctx, query, args...)
 	d.Trace("EXEC", query, time.Since(at), args...)
@@ -262,6 +266,10 @@ func (d *Database) PrepareContext(
 	ctx context.Context,
 	query string,
 ) (*sql.Stmt, error) {
+	if d.logger == nil {
+		return d.Db.PrepareContext(ctx, query)
+	}
+
 	at := time.Now()
 	stmt, err := d.Db.PrepareContext(ctx, query)
 	d.Trace("PREPARE", query, time.Since(at))
@@ -321,6 +329,10 @@ func (d *Database) QueryContext(
 	query string,
 	args ...interface{},
 ) (*sql.Rows, error) {
+	if d.logger == nil {
+		return d.Db.QueryContext(ctx, query, args...)
+	}
+
 	at := time.Now()
 	rows, err := d.Db.QueryContext(ctx, query, args...)
 	d.Trace("QUERY", query, time.Since(at), args...)
@@ -368,6 +380,10 @@ func (d *Database) QueryRowContext(
 	query string,
 	args ...interface{},
 ) *sql.Row {
+	if d.logger == nil {
+		return d.Db.QueryRowContext(ctx, query, args...)
+	}
+
 	at := time.Now()
 	row := d.Db.QueryRowContext(ctx, query, args...)
 	d.Trace("QUERY ROW", query, time.Since(at), args...)
