@@ -165,13 +165,19 @@ func (d *Database) Trace(
 		if sqlString != "" {
 			if len(args) != 0 {
 				d.logger.Printf(
-					"[sql] %s | %s | %+v",
+					"[sql] %s | %vms | %s | %+v",
 					op,
+					sqlTook.Milliseconds(),
 					sqlString,
 					args,
 				)
 			} else {
-				d.logger.Printf("[sql] %s | %s", op, sqlString)
+				d.logger.Printf(
+					"[sql] %s | %vms | %s",
+					op,
+					sqlTook.Milliseconds(),
+					sqlString,
+				)
 			}
 		} else {
 			d.logger.Printf("[sql] %s", op)
